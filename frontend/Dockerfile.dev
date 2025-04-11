@@ -1,0 +1,15 @@
+FROM node:23
+
+ARG VITE_API_URL
+
+WORKDIR /app
+
+COPY package.json .
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 5173
+
+CMD [ "npm", "run", "dev", "--", "--host" ]

@@ -1,0 +1,54 @@
+name: mern
+
+services:
+  server:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    networks:
+      - mern-net
+    environment:
+      - PORT=${PORT}
+      - MONGO_URI=${MONGO_URI}
+    depends_on: 
+      - db
+
+  client:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - VITE_API_URL=${VITE_API_URL}
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
+    networks:
+      - mern-net
+    depends_on:
+      - server
+
+  db:
+    image: mongo
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - mern-net
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - mern-net
+    depends_on:
+      - server
+      - client
+
+volumes:
+  mongo_data:
+networks:
+  mern-net:
+    driver: bridge
